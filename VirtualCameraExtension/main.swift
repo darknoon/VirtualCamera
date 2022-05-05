@@ -1,9 +1,4 @@
-//
-//  main.swift
-//  VirtualCameraExtension
-//
-//  Created by Andrew Pouliot on 5/4/22.
-//
+/// All of the code below came from the template "Camera Extension" built into Xcode, I did not create any of it.
 
 import Foundation
 import CoreMediaIO

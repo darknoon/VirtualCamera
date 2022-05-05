@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4991B17A2823172600119DC1 /* VirtualCameraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4991B1792823172600119DC1 /* VirtualCameraApp.swift */; };
-		4991B17C2823172600119DC1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4991B17B2823172600119DC1 /* ContentView.swift */; };
+		4991B17C2823172600119DC1 /* ActivateExtensionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4991B17B2823172600119DC1 /* ActivateExtensionView.swift */; };
 		4991B17E2823172700119DC1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4991B17D2823172700119DC1 /* Assets.xcassets */; };
 		4991B1812823172700119DC1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4991B1802823172700119DC1 /* Preview Assets.xcassets */; };
 		4991B18F2823175300119DC1 /* VirtualCameraExtensionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4991B18E2823175300119DC1 /* VirtualCameraExtensionProvider.swift */; };
@@ -44,7 +44,7 @@
 /* Begin PBXFileReference section */
 		4991B1762823172600119DC1 /* VirtualCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4991B1792823172600119DC1 /* VirtualCameraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualCameraApp.swift; sourceTree = "<group>"; };
-		4991B17B2823172600119DC1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		4991B17B2823172600119DC1 /* ActivateExtensionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivateExtensionView.swift; sourceTree = "<group>"; };
 		4991B17D2823172700119DC1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4991B1802823172700119DC1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		4991B1822823172700119DC1 /* VirtualCamera.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualCamera.entitlements; sourceTree = "<group>"; };
@@ -96,11 +96,11 @@
 			isa = PBXGroup;
 			children = (
 				4991B1792823172600119DC1 /* VirtualCameraApp.swift */,
-				4991B17B2823172600119DC1 /* ContentView.swift */,
+				4991B17B2823172600119DC1 /* ActivateExtensionView.swift */,
+				4991B19D28233B5E00119DC1 /* SystemExtensionActivationRequestor.swift */,
 				4991B17D2823172700119DC1 /* Assets.xcassets */,
 				4991B1822823172700119DC1 /* VirtualCamera.entitlements */,
 				4991B17F2823172700119DC1 /* Preview Content */,
-				4991B19D28233B5E00119DC1 /* SystemExtensionActivationRequestor.swift */,
 			);
 			path = VirtualCamera;
 			sourceTree = "<group>";
@@ -245,7 +245,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4991B17C2823172600119DC1 /* ContentView.swift in Sources */,
+				4991B17C2823172600119DC1 /* ActivateExtensionView.swift in Sources */,
 				4991B19E28233B5E00119DC1 /* SystemExtensionActivationRequestor.swift in Sources */,
 				4991B17A2823172600119DC1 /* VirtualCameraApp.swift in Sources */,
 			);

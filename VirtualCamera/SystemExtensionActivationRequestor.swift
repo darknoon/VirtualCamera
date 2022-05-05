@@ -1,4 +1,5 @@
 import SystemExtensions
+import AppKit
 
 /// A helper class for your containing app that manages requesting activation
 /// Note: you must install your app in the Applications folder to be able to install a System Extension from it
@@ -8,6 +9,10 @@ class SystemExtensionActivationRequestor: NSObject, OSSystemExtensionRequestDele
     
     init(extensionIdentifier: String) {
         self.extensionIdentifier = extensionIdentifier
+        super.init()
+        if !appIsInstalledInValidLocation {
+            status = .failed(Failure.appInstalledInInvalidLocation(Bundle.main.bundleURL))
+        }
     }
     
     enum Status {
@@ -17,14 +22,29 @@ class SystemExtensionActivationRequestor: NSObject, OSSystemExtensionRequestDele
         case needsReboot
         case activated
         case failed(Error)
+        case requestedDeactivation
     }
     
     enum Failure: Error {
         case unknownRequestResult(OSSystemExtensionRequest.Result)
         case simulatedFailure
+        case appInstalledInInvalidLocation(URL)
     }
     
     @Published var status: Status = .idle
+    
+    // Preflight check to make sure we're in /Applications etc
+    var appIsInstalledInValidLocation: Bool {
+        let canonical = Bundle.main.bundleURL.absoluteURL.resolvingSymlinksInPath()
+        let parentDir = canonical.deletingLastPathComponent()
+        
+        return parentDir.path == "/Applications"
+    }
+    
+    func openSystemPreferences() {
+        let special = URL(string: "x-apple.systempreferences:com.apple.preference.security?general")!
+        NSWorkspace.shared.open(special)
+    }
     
     func requestActivation() {
         guard case .idle = status
@@ -37,8 +57,21 @@ class SystemExtensionActivationRequestor: NSObject, OSSystemExtensionRequestDele
         OSSystemExtensionManager.shared.submitRequest(req)
         
         status = .requested
-        
     }
+    
+    func requestDeactivation() {
+        guard case .activated = status
+        else { fatalError("Invalid state to request deactivation") }
+
+        print("Requesting deactivation of extension \"\(extensionIdentifier)\"")
+        let req = OSSystemExtensionRequest.deactivationRequest(forExtensionWithIdentifier: extensionIdentifier, queue: DispatchQueue.main)
+        req.delegate = self
+
+        OSSystemExtensionManager.shared.submitRequest(req)
+
+        status = .requestedDeactivation
+    }
+
     
     func request(_ request: OSSystemExtensionRequest, actionForReplacingExtension existing: OSSystemExtensionProperties, withExtension ext: OSSystemExtensionProperties) -> OSSystemExtensionRequest.ReplacementAction {
         print("Asked to resolve extension replacement \"\(extensionIdentifier)\" existing: \(existing) new: \(ext)")
@@ -53,14 +86,31 @@ class SystemExtensionActivationRequestor: NSObject, OSSystemExtensionRequestDele
     
     func request(_ request: OSSystemExtensionRequest, didFinishWithResult result: OSSystemExtensionRequest.Result) {
         print("Request finished \"\(extensionIdentifier)\" result: \(result)")
-        switch result {
-        case .completed:
-            status = .activated
-        case .willCompleteAfterReboot:
-            status = .needsReboot
-        @unknown default:
-            status = .failed(Failure.unknownRequestResult(result))
+        
+        // We should be either requesting activation or deactivation
+        switch status {
+        case .requested:
+            switch result {
+            case .completed:
+                status = .activated
+            case .willCompleteAfterReboot:
+                status = .needsReboot
+            @unknown default:
+                status = .failed(Failure.unknownRequestResult(result))
+            }
+        case .requestedDeactivation:
+            switch result {
+            case .completed:
+                status = .idle
+            case .willCompleteAfterReboot:
+                status = .needsReboot
+            @unknown default:
+                status = .failed(Failure.unknownRequestResult(result))
+            }
+        default:
+            assertionFailure("Invalid internal state for OSSystemExtensionRequest finish \(status)")
         }
+        
     }
     
     func request(_ request: OSSystemExtensionRequest, didFailWithError error: Error) {
@@ -72,11 +122,11 @@ class SystemExtensionActivationRequestor: NSObject, OSSystemExtensionRequestDele
         if let error = error as? OSSystemExtensionError {
             switch error.code {
             case .unknown:
-                return "OSSystemExtensionError Unknown"
+                return "Unknown"
             case .missingEntitlement:
-                return "OSSystemExtensionError Missing Entitlement"
+                return "Missing Entitlement"
             case .unsupportedParentBundleLocation:
-                return "OSSystemExtensionError Unsupported Parent Bundle Location"
+                return "Unsupported Parent Bundle Location"
             case .extensionNotFound:
                 return "Extension Not found"
             case .extensionMissingIdentifier:
@@ -100,11 +150,18 @@ class SystemExtensionActivationRequestor: NSObject, OSSystemExtensionRequestDele
             @unknown default:
                 return error.localizedDescription
             }
+        } else if let error = error as? Failure {
+            switch error {
+            case .unknownRequestResult(let result):
+                return "System Extension Service returned an unexpected result: \(result)"
+            case .simulatedFailure:
+                return "This is a simulated failure"
+            case .appInstalledInInvalidLocation(let url):
+                return "This app is installed in an unsupported location:\n\(url.path)\nYou must install it in the Applications folder"
+            }
         }
         return error.localizedDescription
     }
 
 }
-
-let avExtensionIdentifier = "com.darknoon.VirtualCamera.avextension"
 
